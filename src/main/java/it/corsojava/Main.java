@@ -2,39 +2,54 @@ package it.corsojava;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
+import it.corsojava.Exceptions.CodiceSensoreDuplicatoException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class Main {
-    public static void main(String[] args) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static void main(String[] args)  {
 
-        List<Sensore> sensori = new ArrayList<>();
+        ReteMonitoraggio rm = new ReteMonitoraggio();
 
-        SensoreTemperatura s1 = new SensoreTemperatura(1,"Aula 1", 29.3);
+        Sensore s1 = new SensoreTemperatura(1, "Aula 1", 28);
+        Sensore s2 = new SensoreUmidita(2, "Aula 1", 70);
+        Sensore s3 = new SensoreTemperatura(3, "Cortile", 35);
+        Sensore s4 = new SensoreUmidita(4, "Cortile", 55);
+        Sensore s5 = new SensoreTemperatura(5, "Ripostiglio",15);
+        s5.disattiva();
 
-        s1.mostraDettagli();
+        try {
+            rm.aggiungiSensore(s1);
+            rm.aggiungiSensore(s2);
+            rm.aggiungiSensore(s3);
+            rm.aggiungiSensore(s4);
+            rm.aggiungiSensore(s5);
+        } catch (CodiceSensoreDuplicatoException e) {
+            System.out.println("Codice ripetuto inserito. verifica!");
+        }
 
-        String j1 = gson.toJson(s1);
+        rm.visualizzaTutti();
 
-        System.out.println("j1:");
-        System.out.println(j1);
-
-        SensoreTemperatura s2;
-
-        s2 = gson.fromJson(j1, SensoreTemperatura.class);
-
-        System.out.println("S2: ");
-        s2.mostraDettagli();
+        List<Sensore> sensoriInRete = rm.getSensori();
 
 
-        sensori.add(s1);
-        sensori.add(s2);
+        Predicate<Sensore> sensoriAttivi = Sensore::isAttivo;
+        Predicate<Sensore> sensoriAttivi2 = sensore -> sensore.isAttivo();
+        Predicate<Sensore> sensoreCaldo = sensore -> sensore.isAttivo() && sensore.getValore() > 30;
 
-        String arrayJson1 = gson.toJson(sensori);
+        List<Sensore> result = sensoriInRete.stream()
+                //.filter(Predicate<T> in questo caso è Predicate<Sensore>
+                //.filter(Sensore::isAttivo)
+                //.filter(sensore -> sensore.isAttivo())
+                .filter(sensoriAttivi)
+                .toList();
 
-        System.out.println("arrayJson1:");
-        System.out.println(arrayJson1);
+        System.out.println(result.size());
+
 
     }
 }
