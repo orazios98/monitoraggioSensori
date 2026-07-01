@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import it.corsojava.Exceptions.CodiceSensoreDuplicatoException;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -17,26 +18,26 @@ public class Main {
 
         ReteMonitoraggio rm = new ReteMonitoraggio();
 
-        Sensore s1 = new SensoreTemperatura(1, "Aula 1", 28);
-        Sensore s2 = new SensoreUmidita(2, "Aula 1", 70);
+        Sensore s1 = new SensoreTemperatura(11, "aula 1", 28);
+        Sensore s2 = new SensoreUmidita(12, "Aula 1", 70);
         Sensore s3 = new SensoreTemperatura(3, "Cortile", 35);
-        Sensore s4 = new SensoreUmidita(4, "Cortile", 55);
+        Sensore s4 = new SensoreUmidita(4, "cortile", 55);
         Sensore s5 = new SensoreTemperatura(5, "Ripostiglio",15); //DISATTIVO
         Sensore s6 = new SensoreTemperatura(6,"Palestra",30);
         s5.disattiva();
 
         try {
-            rm.aggiungiSensore(s1);
-            rm.aggiungiSensore(s2);
             rm.aggiungiSensore(s3);
             rm.aggiungiSensore(s4);
             rm.aggiungiSensore(s5);
             rm.aggiungiSensore(s6);
+            rm.aggiungiSensore(s1);
+            rm.aggiungiSensore(s2);
         } catch (CodiceSensoreDuplicatoException e) {
             System.out.println("Codice ripetuto inserito. verifica!");
         }
 
-        //rm.visualizzaTutti();
+        rm.visualizzaTutti();
 
         List<Sensore> sensoriInRete = rm.getSensori();
 
@@ -55,8 +56,7 @@ public class Main {
         Stream<String> streamSensor = sensoriInRete.stream()
                         .filter(Sensore::isAttivo)
                         .map(Sensore::getPosizione)
-                        .distinct()
-                        .limit(2);
+                        .distinct();
 
         List<String> listaPosizioni = streamSensor.toList();
 
@@ -72,6 +72,25 @@ public class Main {
         for(String s : listaPosizioni) {
             System.out.println("Pos: " + s);
         }
+
+        streamSensor = sensoriInRete.stream()
+                .filter(Sensore::isAttivo)
+                .map(Sensore::getPosizione)
+                .distinct();
+
+        List<String> orderedPosition = streamSensor.sorted(
+                Comparator.comparing(s-> s,
+                        String.CASE_INSENSITIVE_ORDER
+                )
+
+        ).toList();
+
+        for (String s : orderedPosition) {
+            System.out.println("Ord pos: " + s);
+        }
+
+
+
 
         System.out.println(result.size());
 
