@@ -9,6 +9,7 @@ import it.corsojava.Exceptions.CodiceSensoreDuplicatoException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ public class Main {
             System.out.println("Codice ripetuto inserito. verifica!");
         }
 
-        rm.visualizzaTutti();
+        //rm.visualizzaTutti();
 
         List<Sensore> sensoriInRete = rm.getSensori();
 
@@ -69,9 +70,9 @@ public class Main {
 
         System.out.println("Numero posizioni: " + numeroPosizioni);
 
-        for(String s : listaPosizioni) {
-            System.out.println("Pos: " + s);
-        }
+        //for(String s : listaPosizioni) {
+        //    System.out.println("Pos: " + s);
+        //}
 
         streamSensor = sensoriInRete.stream()
                 .filter(Sensore::isAttivo)
@@ -79,15 +80,38 @@ public class Main {
                 .distinct();
 
         List<String> orderedPosition = streamSensor.sorted(
-                Comparator.comparing(s-> s,
+                Comparator.comparing( s -> s,
                         String.CASE_INSENSITIVE_ORDER
                 )
 
         ).toList();
 
-        for (String s : orderedPosition) {
-            System.out.println("Ord pos: " + s);
+        //for (String s : orderedPosition) {
+        //    System.out.println("Ord pos: " + s);
+        //}
+
+        Optional<Sensore> sensoreOpt = sensoriInRete.stream()
+                        .filter(s -> s.getCodice() == 1)
+                        .findFirst();
+
+        // 1. Controllo semplice
+        if(sensoreOpt.isPresent()) {
+            stampaSensore(sensoreOpt.get());
+        } else {
+            sensoreNonPresente();
         }
+
+        // 2. Controllo con lambda expression
+        sensoreOpt.ifPresent(Main::stampaSensore);
+
+        // 3. Controllo con else
+        sensoreOpt.ifPresentOrElse(
+                Main::stampaSensore,
+                Main::sensoreNonPresente
+        );
+
+
+
 
 
 
@@ -96,4 +120,14 @@ public class Main {
 
 
     }
+
+    public static  void stampaSensore(Sensore s) {
+        System.out.println("Stampo: " + s);
+    }
+
+    public static void sensoreNonPresente() {
+        System.out.println("Sensore non presente");
+    }
 }
+
+
