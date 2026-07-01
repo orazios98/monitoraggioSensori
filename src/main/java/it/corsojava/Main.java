@@ -8,7 +8,9 @@ import it.corsojava.Exceptions.CodiceSensoreDuplicatoException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args)  {
@@ -19,7 +21,8 @@ public class Main {
         Sensore s2 = new SensoreUmidita(2, "Aula 1", 70);
         Sensore s3 = new SensoreTemperatura(3, "Cortile", 35);
         Sensore s4 = new SensoreUmidita(4, "Cortile", 55);
-        Sensore s5 = new SensoreTemperatura(5, "Ripostiglio",15);
+        Sensore s5 = new SensoreTemperatura(5, "Ripostiglio",15); //DISATTIVO
+        Sensore s6 = new SensoreTemperatura(6,"Palestra",30);
         s5.disattiva();
 
         try {
@@ -28,11 +31,12 @@ public class Main {
             rm.aggiungiSensore(s3);
             rm.aggiungiSensore(s4);
             rm.aggiungiSensore(s5);
+            rm.aggiungiSensore(s6);
         } catch (CodiceSensoreDuplicatoException e) {
             System.out.println("Codice ripetuto inserito. verifica!");
         }
 
-        rm.visualizzaTutti();
+        //rm.visualizzaTutti();
 
         List<Sensore> sensoriInRete = rm.getSensori();
 
@@ -47,6 +51,27 @@ public class Main {
                 //.filter(sensore -> sensore.isAttivo())
                 .filter(sensoriAttivi)
                 .toList();
+
+        Stream<String> streamSensor = sensoriInRete.stream()
+                        .filter(Sensore::isAttivo)
+                        .map(Sensore::getPosizione)
+                        .distinct()
+                        .limit(2);
+
+        List<String> listaPosizioni = streamSensor.toList();
+
+        streamSensor = sensoriInRete.stream()
+                .filter(Sensore::isAttivo)
+                .map(Sensore::getPosizione)
+                .distinct();
+
+        long numeroPosizioni = streamSensor.count();
+
+        System.out.println("Numero posizioni: " + numeroPosizioni);
+
+        for(String s : listaPosizioni) {
+            System.out.println("Pos: " + s);
+        }
 
         System.out.println(result.size());
 
