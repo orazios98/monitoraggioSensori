@@ -17,6 +17,23 @@ import java.util.stream.Stream;
 public class Main {
     public static void main(String[] args)  {
 
+        SensoriApiClient clientSensore = new SensoriApiClient();
+
+        String response = clientSensore.getAllUsers();
+        String jsonResponse = null;
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        if(response.contains("Errore")) {
+            System.out.println(response);
+        } else {
+            jsonResponse = gson.toJson(response);
+            System.out.println(jsonResponse);
+        }
+
+    }
+
+    public static void oldMain() {
         ReteMonitoraggio rm = new ReteMonitoraggio();
 
         Sensore s1 = new SensoreTemperatura(11, "aula 1", 28);
@@ -55,9 +72,9 @@ public class Main {
                 .toList();
 
         Stream<String> streamSensor = sensoriInRete.stream()
-                        .filter(Sensore::isAttivo)
-                        .map(Sensore::getPosizione)
-                        .distinct();
+                .filter(Sensore::isAttivo)
+                .map(Sensore::getPosizione)
+                .distinct();
 
         List<String> listaPosizioni = streamSensor.toList();
 
@@ -91,8 +108,8 @@ public class Main {
         //}
 
         Optional<Sensore> sensoreOpt = sensoriInRete.stream()
-                        .filter(s -> s.getCodice() == 1)
-                        .findFirst();
+                .filter(s -> s.getCodice() == 1)
+                .findFirst();
 
         // 1. Controllo semplice
         if(sensoreOpt.isPresent()) {
@@ -117,8 +134,6 @@ public class Main {
 
 
         System.out.println(result.size());
-
-
     }
 
     public static  void stampaSensore(Sensore s) {
